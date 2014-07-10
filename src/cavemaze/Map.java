@@ -1,9 +1,11 @@
 package cavemaze;
+import java.util.Random;
 
 public class Map {    
     private int[][] map;
     int height;
     int width;
+    enum Direction { forward,  back, left, right, here};
     
     /**
      * @return マップ情報
@@ -13,8 +15,6 @@ public class Map {
     }
     
     /**
-    * @param height 迷路の縦幅
-    * @param width  迷路の横幅
     * @throws cavemaze.Map.ImpossibilityException
     */
     public void MakeMap() throws ImpossibilityException{   
@@ -26,8 +26,8 @@ public class Map {
         map = new int[width][height];
         
         //すべて壁
-        for(int i = 0; i < width - 1; i++){
-            for(int j = 0; j < height -1; j++){
+        for(int i = 0; i < width; i++){
+            for(int j = 0; j < height; j++){
                 map[i][j] = -1;
             }
         }
@@ -42,22 +42,61 @@ public class Map {
         }
         
         //迷路を作っていく
+        DelveMap(1, 1);        
     }
     
     /**
      * 実際に迷路を作っていく
      * @param x 掘り始めるx座標
      * @param y 掘り始めるy座標
-     * @return 1で完成0は未完成
      */
-    private int DelveMap(int x, int y){
+    private void DelveMap(int x, int y){
+        for(int k = 0; k < 3; k++){
+            Random rm = new Random();
+            int dir = rm.nextInt(4) + 1;    //1234上下左右
+
+            if(dir == 1 && y >= 2)  {  //上
+                if(map[x][y-1] != map[x][y] && map[x][y-2] != map[x][y]){
+                    map[x][y-1] = map[x][y];
+                    //map[x][y-2]の値をすべてmap[x][y]にする。
+                    Combine(map[x][y-2], map[x][y]);
+                }
+            } else if(dir == 2 && y <= height - 3){ //下
+                if(map[x][y+1] != map[x][y] && map[x][y+2] != map[x][y]){
+                    map[x][y+1] = map[x][y];
+                    //map[x][y+2]の値をすべてmap[x][y]にする。
+                    Combine(map[x][y+2], map[x][y]);
+                }
+            } else if(dir == 3 && x >= 2){  //左
+                if(map[x-1][y] != map[x][y] && map[x-2][y] != map[x][y]){
+                    map[x-1][y] = map[x][y];
+                    //map[x-2][y]の値をすべてmap[x][y]にする。
+                    Combine(map[x-2][y], map[x][y]);
+                }
+            } else if(dir == 4 && x <= width - 3){//右
+                if(map[x+1][y] != map[x][y] && map[x+2][y] != map[x][y]){
+                    map[x+1][y] = map[x][y];
+                    //map[x+2][y]の値をすべてmap[x][y]にする。
+                    Combine(map[x+2][y], map[x][y]);
+                }
+            }
+        }
         
-        //完成判定
-        int tmp = map[1][1];
-        for(int i = 1; i < width -1; i++){
-            for(int j = 1; j < height -1; j++){
-                if(tmp != map[i][j] && map[i][j] != -1)
-                    return 0;
+        //完成判定。してないことが発覚次第すぐにその処理。
+        for(int i = 1; i < height; i++){
+            for(int j = 1; j < width; j++){
+                if(map[j][i] != map[1][1] && map[j][i] != -1){
+                    DelveMap(j, i);
+                }
+            }
+        }
+    }
+    
+    private void Combine(int from, int to){
+        for(int i = 0; i < width; i++){
+            for(int j = 0; j < height; j++){
+                if(map[i][j] == from)
+                    map[i][j] = to;
             }
         }
     }
@@ -67,6 +106,17 @@ public class Map {
     * @param py 自機のy座標
     */
     public void ShowMap(int px, int py){
+        for(int i = 0; i < width; i ++){
+            for(int j = 0; j < height; j++){
+                
+                if(map[i][j] == -1)
+                    System.out.print("■");
+                else
+                    System.out.print("　");
+            }
+            System.out.println("");
+        }
+        System.out.println();
     }
     
     public Map(int h, int w){
