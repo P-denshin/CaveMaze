@@ -2,7 +2,7 @@ package cavemaze;
 import java.util.Random;
 
 public class Map {    
-    private int[][] map;
+    int[][] map;
     int height;
     int width;
     enum Direction { forward,  back, left, right, here};
@@ -42,7 +42,7 @@ public class Map {
         }
         
         //迷路を作っていく
-        DelveMap(1, 1);        
+        DelveMap(width - 2, height - 2, Direction.here);        
     }
     
     /**
@@ -50,43 +50,46 @@ public class Map {
      * @param x 掘り始めるx座標
      * @param y 掘り始めるy座標
      */
-    private void DelveMap(int x, int y){
-        for(int k = 0; k < 3; k++){
+    private void DelveMap(int x, int y, Direction d) {
             Random rm = new Random();
-            int dir = rm.nextInt(4) + 1;    //1234上下左右
+            int dir = rm.nextInt();    //1234上下左右
 
-            if(dir == 1 && y >= 2)  {  //上
-                if(map[x][y-1] != map[x][y] && map[x][y-2] != map[x][y]){
-                    map[x][y-1] = map[x][y];
+            if (dir % 4 == 0 && y >= 2 && d != Direction.forward) {  //上
+                if (map[x][y - 1] != map[x][y] && map[x][y - 2] != map[x][y]) {
+                    map[x][y - 1] = map[x][y];
                     //map[x][y-2]の値をすべてmap[x][y]にする。
-                    Combine(map[x][y-2], map[x][y]);
+                    Combine(map[x][y - 2], map[x][y]);
+                    d = Direction.forward;
                 }
-            } else if(dir == 2 && y <= height - 3){ //下
-                if(map[x][y+1] != map[x][y] && map[x][y+2] != map[x][y]){
-                    map[x][y+1] = map[x][y];
+            } else if (dir % 4 == 1 && y <= height - 3 && d != Direction.back) { //下
+                if (map[x][y + 1] != map[x][y] && map[x][y + 2] != map[x][y]) {
+                    map[x][y + 1] = map[x][y];
                     //map[x][y+2]の値をすべてmap[x][y]にする。
-                    Combine(map[x][y+2], map[x][y]);
+                    Combine(map[x][y + 2], map[x][y]);
+                    d = Direction.back;
                 }
-            } else if(dir == 3 && x >= 2){  //左
-                if(map[x-1][y] != map[x][y] && map[x-2][y] != map[x][y]){
-                    map[x-1][y] = map[x][y];
+            } else if (dir % 4 == 2 && x >= 2 && d != Direction.left) {  //左
+                if (map[x - 1][y] != map[x][y] && map[x - 2][y] != map[x][y]) {
+                    map[x - 1][y] = map[x][y];
                     //map[x-2][y]の値をすべてmap[x][y]にする。
-                    Combine(map[x-2][y], map[x][y]);
+                    Combine(map[x - 2][y], map[x][y]);
+                    d = Direction.left;
                 }
-            } else if(dir == 4 && x <= width - 3){//右
-                if(map[x+1][y] != map[x][y] && map[x+2][y] != map[x][y]){
-                    map[x+1][y] = map[x][y];
+            } else if (dir % 4 == 3 && x <= width - 3 && d != Direction.right) {//右
+                if (map[x + 1][y] != map[x][y] && map[x + 2][y] != map[x][y]) {
+                    map[x + 1][y] = map[x][y];
                     //map[x+2][y]の値をすべてmap[x][y]にする。
-                    Combine(map[x+2][y], map[x][y]);
+                    Combine(map[x + 2][y], map[x][y]);
+                    d = Direction.right;
                 }
             }
-        }
         
+
         //完成判定。してないことが発覚次第すぐにその処理。
-        for(int i = 1; i < height; i++){
-            for(int j = 1; j < width; j++){
-                if(map[j][i] != map[1][1] && map[j][i] != -1){
-                    DelveMap(j, i);
+        for (int i = 1; i < height; i++) {
+            for (int j = 1; j < width; j++) {
+                if (map[j][i] != map[1][1] && map[j][i] != -1) {
+                    DelveMap(j, i, d);
                 }
             }
         }
