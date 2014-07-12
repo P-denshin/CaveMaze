@@ -104,11 +104,8 @@ public class Map {
         }
     }
     
-    /**
-    * @param px 自機のx座標
-    * @param py 自機のy座標
-    */
-    public void ShowMap(int px, int py){
+
+    public void ShowMap(){
         for(int i = 0; i < width; i ++){
             for(int j = 0; j < height; j++){
                 
@@ -130,5 +127,21 @@ public class Map {
         public ImpossibilityException(){
             super("作成される迷路は縦横の長さは奇数でなければ作れません。");
         }
+    }
+    
+    public String MapToString(){
+        String result = "";
+        for(int i = 0; i < width; i ++){
+            for(int j = 0; j < height; j++){
+                
+                if(map[i][j] == -1)
+                    result += "■";
+                else
+                    result += "　";
+            }
+            result += "\n";
+        }
+        
+        return result;
     }
 }
